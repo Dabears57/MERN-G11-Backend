@@ -19,7 +19,8 @@ app.use((req, res, next) =>
 });
 
 const MongoClient = require('mongodb').MongoClient;
-const url = 'mongodb+srv://admin:<db_password>@merng11.gjjygc6.mongodb.net/?appName=MERNG11';
+require('dotenv').config();
+const url = process.env.MONGODB_URI;
 const client = new MongoClient(url);
 client.connect();
 
