@@ -22,8 +22,15 @@ const userModel = require("./models/user");
 // start server wait for mongodb connection
 async function startup(){
     // database init
+    console.log("starting up server...");
+    console.log("attempting to connect to mongodb");
     await mongo_utils.connect(MONGODB_URI);
+
+    console.log("initializing models...");
+
     await userModel.init();
+
+    console.log("models are initialized.");
 
     app.listen(PORT, async (req,res)=>{
         console.log(`server online! Running Port ${PORT}`);
