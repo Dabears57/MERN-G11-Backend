@@ -34,8 +34,7 @@ async function createUser(req, res){
         await userModel.createUser(email, hashedPassword);
 
         return res.status(200).json({
-            message: "User created",
-            hashedPassword // remove this in production
+            message: "user created!"
         });
 
     } catch (err) {
@@ -69,8 +68,10 @@ async function loginUser(req, res){
             });
         }
 
+        jwt = jwtUtil.generateToken(email);
+
         return res.status(200).json({
-            message: "user logged in"
+            token: jwt
         });
 
     }catch(err){
