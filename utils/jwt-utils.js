@@ -11,9 +11,9 @@ const EXPIRES_IN = "1h";
  * @param {string} email
  * @returns {string} token
  */
-function generateToken(email) {
+function generateToken(email, firstName) {
     return jwt.sign(
-        { email },           // payload
+        { email, firstName },  // payload
         SECRET_KEY,          // secret
         { expiresIn: EXPIRES_IN }
     );
