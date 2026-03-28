@@ -1,40 +1,141 @@
 const bcrypt = require("bcrypt");
 const userModel = require("../models/user");
 const jwtUtil = require("../utils/jwt-utils");
+const crypto = require('crypto');
 
-// salts a password 
-async function saltPassword(plainPassword){
+
+// =========================
+// PASSWORD HELPERS
+// =========================
+async function saltPassword(plainPassword) {
     const SALT_ROUNDS = 10;
     return await bcrypt.hash(plainPassword, SALT_ROUNDS);
-};
+}
 
-// returns true or false
-async function compareSaltedPassword(plainPassword, hashedPassword){
+async function compareSaltedPassword(plainPassword, hashedPassword) {
     return await bcrypt.compare(plainPassword, hashedPassword);
 }
 
-/*
-We should expect when a user is being created:
-email and password.
-*/
-async function createUser(req, res){
-    try {
-        const email = req.body.email;
-        const password = req.body.password;
+// =========================
+// TOKEN GENERATION (RAW ONLY)
+// =========================
+function generateVerificationToken() {
+    return crypto.randomBytes(32).toString("hex");
+}
 
-        // verification
-        if(!email || !password) {
-            return res.status(400).json({error: "Email and Password is required"});
+// =========================
+// CREATE USER
+// =========================
+async function createUser(req, res) {
+    try {
+        const { email, password, firstName } = req.body;
+
+        if (!email || !password || !firstName) {
+            return res.status(400).json({
+                error: "Name, Email, and Password is required"
+            });
         }
 
-        // salt password for security
         const hashedPassword = await saltPassword(password);
 
-        // attempt to create user (this handles the duplicate email)
-        await userModel.createUser(email, hashedPassword);
+        // ONLY generate raw token (model hashes it)
+        const rawToken = generateVerificationToken();
+
+        await userModel.createUser(
+            email,
+            firstName,
+            rawToken,
+            hashedPassword
+        );
+
+        const verificationLink = `${process.env.APP_URL}/verify?token=${rawToken}`;
 
         return res.status(200).json({
-            message: "user created!"
+            message: verificationLink
+        });
+
+    } catch (err) {
+        if (err.message === "EMAIL_EXISTS") {
+            return res.status(400).json({ error: "Email already exists" });
+        }
+        return res.status(500).json({ error: err.message });
+    }
+}
+
+// =========================
+// VERIFY ACCOUNT
+// =========================
+async function verifyAccount(req, res) {
+    try {
+        const { token } = req.body;
+
+        if (!token) {
+            return res.status(400).json({ error: "Token required" });
+        }
+
+        // EVERYTHING to model
+        await userModel.verifyUser(token);
+
+        return res.json({ message: "Account verified!" });
+
+    } catch (err) {
+        if (err.message === "INVALID_OR_EXPIRED_TOKEN") {
+            return res.status(400).json({
+                error: "Invalid or expired token"
+            });
+        }
+        return res.status(500).json({ error: err.message });
+    }
+}
+
+// =========================
+// LOGIN USER
+// =========================
+async function loginUser(req, res) {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({
+                error: "Email and Password is required"
+            });
+        }
+
+        const user = await userModel.findUserByEmail(email);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "No user found with that email"
+            });
+        }
+
+        // use model guard instead of inline logic
+        try {
+            userModel.assertVerified(user);
+        } catch (err) {
+            if (err.message === "EMAIL_NOT_VERIFIED") {
+                return res.status(403).json({
+                    message: "Account is not verified"
+                });
+            }
+            throw err;
+        }
+
+        const validPassword = await compareSaltedPassword(
+            password,
+            user.password
+        );
+
+        if (!validPassword) {
+            return res.status(403).json({
+                message: "Incorrect password"
+            });
+        }
+
+        const jwt = jwtUtil.generateToken(email);
+
+        return res.status(200).json({
+            token: jwt
         });
 
     } catch (err) {
@@ -42,44 +143,32 @@ async function createUser(req, res){
     }
 }
 
-async function loginUser(req, res){
-    try{
-        const email = req.body.email;
-        const password = req.body.password;
-
-         // verification
-        if(!email || !password) {
-            return res.status(400).json({error: "Email and Password is required"});
+async function regenerateVerificationToken(req, res) {
+    try {
+        const { email } = req.body;
+        if (!email){
+            return res.status(400).json({ error: "Email required" });
         }
 
-        // find user
-        user = await userModel.findUserByEmail(email);
-        if(!user){
-            return res.status(404).json({
-                message: "no user found with that email"
-            });
+        const rawToken = await userModel.regenerateVerificationToken(email);
+
+        // Create a verification link
+        const verificationLink = `${process.env.APP_URL}/verify?token=${rawToken}`;
+
+        // TODO: Send this link via email to the user
+        return res.status(200).json({ message: "New token generated", verificationLink });
+    } catch (err) {
+        if (err.message === "USER_NOT_FOUND"){
+            return res.status(404).json({ error: "User not found" });
         }
 
-        // check to see if it is the right password
-        valid_password = await compareSaltedPassword(password, user.password);
-        if(!valid_password){
-            return res.status(403).json({
-                message: "incorrect password"
-            });
-        }
-
-        jwt = jwtUtil.generateToken(email);
-
-        return res.status(200).json({
-            token: jwt
-        });
-
-    }catch(err){
-        return res.status(500).json({error: err.message});
+        return res.status(500).json({ error: err.message });
     }
 }
 
 module.exports = {
     createUser,
-    loginUser
-}
+    verifyAccount,
+    loginUser,
+    regenerateVerificationToken 
+};
