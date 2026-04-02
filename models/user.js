@@ -17,7 +17,7 @@ function getCollection() {
         throw new Error("DB not initialized");
     }
 
-    _collection = dbInstance.collection("notes");
+    _collection = dbInstance.collection("users");
     return _collection;
 }
 

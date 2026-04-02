@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const userService = require("../services/user");
+const userService = require("../services/users");
 
 async function createUser(req, res) {
     try {
@@ -39,7 +39,8 @@ async function createUser(req, res) {
             return res.status(400).json({ 
                 success: false,
                 error: "Email already exists",
-                message: "See error field"});
+                message: "See error field"
+            });
         }
 
         return res.status(500).json({
