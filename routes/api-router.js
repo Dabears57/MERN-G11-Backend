@@ -15,5 +15,13 @@ apiRouter.use("/notes", noteRouter);
 const projectRouter = require("./project-router");
 apiRouter.use("/projects",projectRouter);
 
+// tasks router
+const tasksRouter = require("./task-router");
+apiRouter.use("/tasks",tasksRouter);
+
+// sessions router
+const sessionsRouter = require("./session-router");
+apiRouter.use("/sessions", sessionsRouter);
+
 // tell express to now user the API router
 module.exports = apiRouter;

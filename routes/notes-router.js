@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db");
 const noteService = require("../services/notes");
 
 // TODO ADD USER ID FOR ALL METHODS

@@ -5,8 +5,20 @@ const DATABASE_STR = "development"; // should change this later
 const TOKEN_EXPIRE_TIME_MS = 1000 * 60 * 60; // 1 hour
 const TOKEN_PASSWORD_EXPIRE_TIME_MS = 1000 * 60 * 5 // 5 minute
 
+// lazy load the collection to reduce calls
+let _collection = null;
+
 function getCollection() {
-    return db.getDb(DATABASE_STR).collection("users");
+    if (_collection) return _collection;
+
+    const dbInstance = db.getDb(DATABASE_STR);
+
+    if (!dbInstance) {
+        throw new Error("DB not initialized");
+    }
+
+    _collection = dbInstance.collection("notes");
+    return _collection;
 }
 
 async function findUserByEmail(email) {
@@ -42,7 +54,8 @@ async function createUser(email, firstName, hashedToken, hashedPassword) {
     } catch (err) {
         console.log(err);
 
-        if (err.code === 11000) {
+        const EXISTS_MONGO_ERROR_CODE = 11000;
+        if (err.code === EXISTS_MONGO_ERROR_CODE) {
             throw new Error("EMAIL_EXISTS");
         }
         throw err;
