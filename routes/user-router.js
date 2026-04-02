@@ -27,7 +27,7 @@ async function createUser(req, res) {
         return res.status(200).json({
             success: true,
             data:{
-                message: verificationLink
+                verificationLink: verificationLink
             },
             message: "user created, please follow verification link"
         });
