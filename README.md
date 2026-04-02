@@ -227,3 +227,597 @@ Note: This route is currently not implemented in the backend.
     "message": "Password successfully reset"
 }
 ```
+
+## Tasks
+All Routes
+```
+POST /api/tasks/create
+GET /api/tasks/fetch/one
+GET /api/tasks/fetch/many
+PUT /api/tasks/update
+DELETE /api/tasks/delete
+```
+
+---
+
+### Create Task
+```
+POST /api/tasks/create
+```
+
+This route creates a new task under a given project.
+
+**Request**
+```json
+{
+    "Method": "POST",
+    "Route": "api/tasks/create",
+    "Body": {
+        "projectId": str,
+        "name": str,
+        "description": str
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": {},
+    "message": "task created successfully"
+}
+```
+
+---
+
+### Get Single Task
+```
+GET /api/tasks/fetch/one
+```
+
+This route fetches a single task based on a search query.
+
+**Request**
+```json
+{
+    "Method": "GET",
+    "Route": "api/tasks/fetch/one",
+    "Body": {
+        // flexible search query (e.g. id, projectId, etc.)
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": {},
+    "message": "task fetched successfully"
+}
+```
+
+---
+
+### Get Multiple Tasks
+```
+GET /api/tasks/fetch/many
+```
+
+This route fetches multiple tasks based on a search query.
+
+**Request**
+```json
+{
+    "Method": "GET",
+    "Route": "api/tasks/fetch/many",
+    "Body": {
+        // flexible search query
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": [],
+    "message": "tasks fetched successfully"
+}
+```
+
+### Update Task
+```
+PUT /api/tasks/update
+```
+
+This route updates a task using its ID and an update object.
+
+**Request**
+```json
+{
+    "Method": "PUT",
+    "Route": "api/tasks/update",
+    "Body": {
+        "id": str,
+        "update": {}
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": {},
+    "message": "task updated successfully"
+}
+```
+
+---
+
+### Delete Task
+```
+DELETE /api/tasks/delete
+```
+
+This route deletes a task by its ID.
+
+**Request**
+```json
+{
+    "Method": "DELETE",
+    "Route": "api/tasks/delete",
+    "Body": {
+        "id": str
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": {},
+    "message": "task deleted successfully"
+}
+```
+
+## Sessions
+All Routes
+```
+POST /api/sessions/create
+POST /api/sessions/stop
+GET /api/sessions/fetch/one
+GET /api/sessions/fetch/many
+DELETE /api/sessions/delete
+```
+
+### Start Session
+```
+POST /api/sessions/create
+```
+
+This route starts a new session for a given project.
+
+**Request**
+```json
+{
+    "Method": "POST",
+    "Route": "api/sessions/create",
+    "Body": {
+        "projectId": str
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": {},
+    "message": "session started successfully"
+}
+```
+
+---
+
+### Stop Session
+```
+POST /api/sessions/stop
+```
+
+This route stops an active session.
+
+**Request**
+```json
+{
+    "Method": "POST",
+    "Route": "api/sessions/stop",
+    "Body": {
+        "id": str
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": {},
+    "message": "session stopped successfully"
+}
+```
+
+---
+
+### Get Single Session
+```
+GET /api/sessions/fetch/one
+```
+
+This route fetches a single session based on a search query.
+
+**Request**
+```json
+{
+    "Method": "GET",
+    "Route": "api/sessions/fetch/one",
+    "Body": {
+        // flexible search query
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": {},
+    "message": "session fetched successfully"
+}
+```
+
+---
+
+### Get Multiple Sessions
+```
+GET /api/sessions/fetch/many
+```
+
+This route fetches multiple sessions based on a search query.
+
+**Request**
+```json
+{
+    "Method": "GET",
+    "Route": "api/sessions/fetch/many",
+    "Body": {
+        // flexible search query
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": [],
+    "message": "sessions fetched successfully"
+}
+```
+
+---
+
+### Delete Session
+```
+DELETE /api/sessions/delete
+```
+
+This route deletes a session by its ID.
+
+**Request**
+```json
+{
+    "Method": "DELETE",
+    "Route": "api/sessions/delete",
+    "Body": {
+        "id": str
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": {},
+    "message": "session deleted successfully"
+}
+```
+
+## Projects
+All Routes
+```
+POST /api/projects/create
+GET /api/projects/fetch/one
+GET /api/projects/fetch/many
+PUT /api/projects/update
+DELETE /api/projects/delete
+```
+
+---
+
+### Create Project
+```
+POST /api/projects/create
+```
+
+This route creates a new project.
+
+**Request**
+```json
+{
+    "Method": "POST",
+    "Route": "api/projects/create",
+    "Body": {
+        "title": str,
+        "description": str,
+        "id": str
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": {},
+    "message": "project created successfully"
+}
+```
+
+---
+
+### Get Single Project
+```
+GET /api/projects/fetch/one
+```
+
+This route fetches a single project based on a search query.
+
+**Request**
+```json
+{
+    "Method": "GET",
+    "Route": "api/projects/fetch/one",
+    "Body": {
+        // flexible search query
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": {},
+    "message": "project fetched successfully"
+}
+```
+
+---
+
+### Get Multiple Projects
+```
+GET /api/projects/fetch/many
+```
+
+This route fetches multiple projects based on a search query.
+
+**Request**
+```json
+{
+    "Method": "GET",
+    "Route": "api/projects/fetch/many",
+    "Body": {
+        // flexible search query
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": [],
+    "message": "projects fetched successfully"
+}
+```
+
+---
+
+### Update Project
+```
+PUT /api/projects/update
+```
+
+This route updates a project using its ID and an update object.
+
+**Request**
+```json
+{
+    "Method": "PUT",
+    "Route": "api/projects/update",
+    "Body": {
+        "id": str,
+        "update": {}
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": {},
+    "message": "project updated successfully"
+}
+```
+
+---
+
+### Delete Project
+```
+DELETE /api/projects/delete
+```
+
+This route deletes a project by its ID.
+
+**Request**
+```json
+{
+    "Method": "DELETE",
+    "Route": "api/projects/delete",
+    "Body": {
+        "id": str
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": {},
+    "message": "project deleted successfully"
+}
+```
+
+## Notes
+All Routes
+```
+POST /api/notes/create
+GET /api/notes/fetch/one
+GET /api/notes/fetch/many
+DELETE /api/notes/delete
+```
+
+---
+
+### Create Note
+```
+POST /api/notes/create
+```
+
+This route creates a new note attached to a parent entity (e.g. project, task, session).
+
+**Request**
+```json
+{
+    "Method": "POST",
+    "Route": "api/notes/create",
+    "Body": {
+        "content": str,
+        "parentType": str,
+        "parentId": str
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": {},
+    "message": "note created successfully"
+}
+```
+
+---
+
+### Get Single Note
+```
+GET /api/notes/fetch/one
+```
+
+This route fetches a single note based on a search query.
+
+**Request**
+```json
+{
+    "Method": "GET",
+    "Route": "api/notes/fetch/one",
+    "Body": {
+        // flexible search query
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": {},
+    "message": "note fetched successfully"
+}
+```
+
+---
+
+### Get Multiple Notes
+```
+GET /api/notes/fetch/many
+```
+
+This route fetches multiple notes based on a search query.
+
+**Request**
+```json
+{
+    "Method": "GET",
+    "Route": "api/notes/fetch/many",
+    "Body": {
+        // flexible search query
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": [],
+    "message": "notes fetched successfully"
+}
+```
+
+---
+
+### Delete Note
+```
+DELETE /api/notes/delete
+```
+
+This route deletes a note by its ID.
+
+**Request**
+```json
+{
+    "Method": "DELETE",
+    "Route": "api/notes/delete",
+    "Body": {
+        "id": str
+    }
+}
+```
+
+**Response**
+```json
+{
+    "success": true,
+    "data": {},
+    "message": "note deleted successfully"
+}
+```

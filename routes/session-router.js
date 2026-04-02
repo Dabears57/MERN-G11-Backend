@@ -9,16 +9,26 @@ async function createSession(req, res){
 
         if(!projectId){
             return res.status(400).json({
-                error: "missing projectId"
+                success: false,
+                error: "missing projectId",
+                message: "missing required field"
             });
         }
 
         const session = await sessionService.createSession(projectId);
 
-        return res.status(200).json({ session });
+        return res.status(200).json({
+            success: true,
+            data: session,
+            message: "session started successfully"
+        });
 
     }catch(err){
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
     }
 }
 
@@ -29,16 +39,26 @@ async function stopSession(req, res){
 
         if(!id){
             return res.status(400).json({
-                error: "missing session id"
+                success: false,
+                error: "missing session id",
+                message: "missing required field"
             });
         }
 
         const result = await sessionService.stopSession(id);
 
-        return res.status(200).json({ result });
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: "session stopped successfully"
+        });
 
     }catch(err){
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
     }
 }
 
@@ -48,10 +68,18 @@ async function getSession(req, res){
 
         const result = await sessionService.findSession(searchQuery);
 
-        return res.status(200).json({ result });
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: "session fetched successfully"
+        });
 
     }catch(err){
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
     }
 }
 
@@ -61,10 +89,18 @@ async function getSessions(req, res){
 
         const result = await sessionService.findSessions(searchQuery);
 
-        return res.status(200).json({ result });
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: "sessions fetched successfully"
+        });
 
     }catch(err){
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
     }
 }
 
@@ -74,16 +110,26 @@ async function deleteSession(req, res){
 
         if(!id){
             return res.status(400).json({
-                error: "missing session id"
+                success: false,
+                error: "missing session id",
+                message: "missing required field"
             });
         }
 
         const result = await sessionService.deleteSession(id);
 
-        return res.status(200).json({ result });
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: "session deleted successfully"
+        });
 
     }catch(err){
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
     }
 }
 

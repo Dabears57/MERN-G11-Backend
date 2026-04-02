@@ -6,11 +6,13 @@ const projectService = require("../services/projects");
 
 async function createProject(req, res){
     try{
-        const { title, description, id} = req.body;
+        const { title, description, id } = req.body;
 
         if(!title || !description || !id){
             return res.status(400).json({
-                error: "missing fields: title or description"
+                success: false,
+                error: "missing fields: title, description, or id",
+                message: "missing required fields"
             });
         }
 
@@ -20,10 +22,18 @@ async function createProject(req, res){
             id
         );
 
-        return res.status(200).json({ project });
+        return res.status(200).json({
+            success: true,
+            data: project,
+            message: "project created successfully"
+        });
 
     }catch(err){
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
     }
 }
 
@@ -33,10 +43,18 @@ async function getProject(req, res){
 
         const result = await projectService.findProject(searchQuery);
 
-        return res.status(200).json({ result });
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: "project fetched successfully"
+        });
 
     }catch(err){
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
     }
 }
 
@@ -46,10 +64,18 @@ async function getProjects(req, res){
 
         const result = await projectService.findProjects(searchQuery);
 
-        return res.status(200).json({ result });
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: "projects fetched successfully"
+        });
 
     }catch(err){
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
     }
 }
 
@@ -59,16 +85,26 @@ async function updateProject(req, res){
 
         if(!id || !update){
             return res.status(400).json({
-                error: "missing id or update object"
+                success: false,
+                error: "missing id or update object",
+                message: "missing required fields"
             });
         }
 
         const result = await projectService.updateProject(id, update);
 
-        return res.status(200).json({ result });
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: "project updated successfully"
+        });
 
     }catch(err){
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
     }
 }
 
@@ -78,16 +114,26 @@ async function deleteProject(req, res){
 
         if(!id){
             return res.status(400).json({
-                error: "missing project id"
+                success: false,
+                error: "missing project id",
+                message: "missing required field"
             });
         }
 
         const result = await projectService.deleteProject(id);
 
-        return res.status(200).json({ result });
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: "project deleted successfully"
+        });
 
     }catch(err){
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
     }
 }
 

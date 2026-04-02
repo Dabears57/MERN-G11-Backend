@@ -10,7 +10,9 @@ async function createTask(req, res){
 
         if(!projectId || !name){
             return res.status(400).json({
-                error: "missing fields: projectId or name"
+                success: false,
+                error: "missing fields: projectId or name",
+                message: "missing required fields"
             });
         }
 
@@ -20,10 +22,18 @@ async function createTask(req, res){
             description
         );
 
-        return res.status(200).json({ task });
+        return res.status(200).json({
+            success: true,
+            data: task,
+            message: "task created successfully"
+        });
 
     }catch(err){
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
     }
 }
 
@@ -33,10 +43,18 @@ async function getTask(req, res){
 
         const result = await taskService.findTask(searchQuery);
 
-        return res.status(200).json({ result });
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: "task fetched successfully"
+        });
 
     }catch(err){
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
     }
 }
 
@@ -46,10 +64,18 @@ async function getTasks(req, res){
 
         const result = await taskService.findTasks(searchQuery);
 
-        return res.status(200).json({ result });
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: "tasks fetched successfully"
+        });
 
     }catch(err){
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
     }
 }
 
@@ -59,16 +85,26 @@ async function updateTask(req, res){
 
         if(!id || !update){
             return res.status(400).json({
-                error: "missing id or update object"
+                success: false,
+                error: "missing id or update object",
+                message: "missing required fields"
             });
         }
 
         const result = await taskService.updateTask(id, update);
 
-        return res.status(200).json({ result });
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: "task updated successfully"
+        });
 
     }catch(err){
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
     }
 }
 
@@ -78,16 +114,26 @@ async function deleteTask(req, res){
 
         if(!id){
             return res.status(400).json({
-                error: "missing task id"
+                success: false,
+                error: "missing task id",
+                message: "missing required field"
             });
         }
 
         const result = await taskService.deleteTask(id);
 
-        return res.status(200).json({ result });
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: "task deleted successfully"
+        });
 
     }catch(err){
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
     }
 }
 
