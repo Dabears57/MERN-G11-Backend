@@ -10,7 +10,9 @@ async function createUser(req, res) {
         // TODO had isEmail check and Password Requirements 
         if (!email || !password || !firstName) {
             return res.status(400).json({
-                error: "Name, Email, and Password is required"
+                success: false,
+                error: "Name, Email, and Password is required",
+                message: "missing required field"
             });
         }
 
@@ -23,39 +25,64 @@ async function createUser(req, res) {
         // TODO send verification link over email
 
         return res.status(200).json({
-            message: verificationLink
+            success: true,
+            data:{
+                message: verificationLink
+            },
+            message: "user created, please follow verification link"
         });
 
     } catch (err) {
         console.log(err);
 
         if (err.message === "EMAIL_EXISTS") {
-            return res.status(400).json({ error: "Email already exists" });
+            return res.status(400).json({ 
+                success: false,
+                error: "Email already exists",
+                message: "See error field"});
         }
-        return res.status(500).json({ error: err.message });
+
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unkown error check message"});
     }
 }
 
 async function verifyAccount(req, res) {
     try {
-        const { token } = req.body;
+        const token = req.query.token;
         if (!token) {
-            return res.status(400).json({ error: "Token required" });
+            return res.status(400).json({
+                success: false,
+                error: "token required in query parameter",
+                message: "no verification token found"
+            });
         }
 
         await userService.verifyUser(token);
 
-        return res.json({ message: "Account verified!" });
+        return res.json({
+            success: true,
+            data: null,
+            message: "Account verified!"
+        });
 
     } catch (err) {
         console.log(err);
 
         if (err.message === "INVALID_OR_EXPIRED_TOKEN") {
             return res.status(400).json({
-                error: "Invalid or expired token"
+                success: false,
+                error: "Invalid or expired token",
+                message: "invalid token read error message"
             });
         }
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error message please see error field"
+        });
     }
 }
 
@@ -65,21 +92,31 @@ async function loginUser(req, res) {
 
         if (!email || !password) {
             return res.status(400).json({
-                error: "Email and Password is required"
+                success: false,
+                error: "Email and Password is required",
+                message: "Email and Password is required",
             });
         }
     
         const jwt = await userService.loginUser(email, password);
 
         return res.status(200).json({
-            token: jwt
+            success: true,
+            data: {
+                token: jwt,
+            },
+            message: "token generated!"
         });
 
     } catch (err) {
         console.log("sending error")
         console.log(err);
 
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unkown error please see error message"
+        });
     }
 }
 
@@ -87,21 +124,39 @@ async function regenerateVerificationToken(req, res) {
     try {
         const { email } = req.body;
         if (!email){
-            return res.status(400).json({ error: "Email required" });
+            return res.status(400).json({
+                success: false,
+                error: "Email required",
+                message: "Email required" 
+            });
         }
 
         const verificationLink = await userService.regenerateVerificationToken(email);
         
         // TODO: Send this link via email to the user
-        return res.status(200).json({ message: "New token generated", verificationLink });
+        return res.status(200).json({
+            success: true,
+            data: {
+                link: verificationLink 
+            },
+            message: "New token generated",
+        });
     } catch (err) {
         console.log(err);
 
         if (err.message === "USER_NOT_FOUND"){
-            return res.status(404).json({ error: "User not found" });
+            return res.status(404).json({
+                success: false,
+                error: "User not found",
+                message: "User not found"
+            });
         }
 
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unkown error please see error field"
+        });
     }
 }
 
@@ -137,9 +192,10 @@ async function resetPassword(req,res){
 
 // routing the functions...
 
+router.get("/verify", verifyAccount);
+
 router.post("/create", createUser);
 router.post("/login", loginUser);
-router.post("/verify", verifyAccount);
 router.post("/verify/regen", regenerateVerificationToken);
 router.post("/password/reset/request", requestPasswordReset);
 router.post("/password/reset", resetPassword);
