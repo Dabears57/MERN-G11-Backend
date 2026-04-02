@@ -121,18 +121,7 @@ async function regenerateVerificationToken(email) {
 
     // Generate new token
     const rawToken = encryptUtil.generateToken();
-    // const hashedToken = encryptUtil.hashToken(rawToken);
-
-    // Update user with new token & expiry
-    // await users.updateOne(
-    //     { _id: user._id },
-    //     {
-    //         $set: {
-    //             verificationTokenHash: hashedToken,
-    //             verificationTokenExpires: Date.now() + TOKEN_EXPIRE_TIME_MS,
-    //         }
-    //     }
-    // );
+   
     await setVerificationToken(user._id, rawToken);
 
     // Return the raw token for sending via email

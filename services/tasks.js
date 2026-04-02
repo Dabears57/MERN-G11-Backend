@@ -16,17 +16,17 @@ async function createTask(projectId, name, description){
         todos: []
     };
 
-    return taskModel.createTask(task);
+    return await taskModel.createTask(task);
 }
 
 // FIND ONE
 async function findTask(searchQueryObject){
-    return taskModel.findTask(searchQueryObject);
+    return await taskModel.findTask(searchQueryObject);
 }
 
 // FIND MANY
 async function findTasks(searchQueryObject){
-    return taskModel.findTasks(searchQueryObject);
+    return await taskModel.findTasks(searchQueryObject);
 }
 
 // UPDATE
@@ -35,7 +35,7 @@ async function updateTask(id, updateObject){
         throw new Error("missing task id");
     }
 
-    return taskModel.updateTask(id, updateObject);
+    return await taskModel.updateTask(id, updateObject);
 }
 
 // DELETE
@@ -44,7 +44,7 @@ async function deleteTask(id){
         throw new Error("missing task id");
     }
 
-    return taskModel.deleteTask(id);
+    return await taskModel.deleteTask(id);
 }
 
 module.exports = {

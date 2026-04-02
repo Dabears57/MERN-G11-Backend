@@ -1,15 +1,15 @@
 const noteModel = require("../models/notes");
 
-const ValidParentTypes = ["session","project","task"];
-const ValidParentTypesStr = ValidParentTypes.toString();
-
-async function createNote(content, parentType, parentId, createdAt){
+async function createNote(userId, content, parentType, parentId, createdAt){
     // validate parentType
+    const ValidParentTypes = await findParentTypes();
+
     if(!ValidParentTypes.includes(parentType)){
-        throw new Error(`invalid ParentType: ${ValidParentTypesStr}`);
+        throw new Error(`invalid ParentType: ${ValidParentTypes.toString()}`);
     }
 
-    return noteModel.createNote(
+    return await noteModel.createNote(
+        userId,
         content, 
         parentType, 
         parentId, 
@@ -17,15 +17,26 @@ async function createNote(content, parentType, parentId, createdAt){
 }
 
 async function findNote(searchQueryObject){
-    return noteModel.findNote(searchQueryObject);
+    return await noteModel.findNote(searchQueryObject);
 }
 
 async function findNotes(searchQueryObject){
-    return noteModel.findNotes(searchQueryObject);
+    return await noteModel.findNotes(searchQueryObject);
+}
+
+async function deleteNote(userId, reqid){
+    const res = await noteModel.deleteNote(reqid, userId); 
+    return res;
+}
+
+async function findParentTypes(){
+    return await noteModel.findParentTypes();
 }
 
 module.exports = {
     createNote,
     findNote,
-    findNotes
+    findNotes,
+    findParentTypes,
+    deleteNote
 }

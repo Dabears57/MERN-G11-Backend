@@ -1,4 +1,5 @@
 const db = require("../utils/mongo-utils");
+const { ObjectId } = require("mongodb");
 const DATABASE_STR = "development"; // should change this later 
 
 
@@ -18,9 +19,10 @@ function getCollection() {
     return _collection;
 }
 
-async function createNote(content, parentType, parentId, createdAt){
+async function createNote(userId, content, parentType, parentId, createdAt){
     const notes = getCollection();
     const note = {
+        userId: userId,
         content: content,
         parentType: parentType,
         parentId: parentId,
@@ -33,18 +35,41 @@ async function createNote(content, parentType, parentId, createdAt){
 // find one note
 async function findNote(searchQueryObject){
     const notes = getCollection();
-    const results = await notes.find(searchQueryObject);
-    return results[0] || null;
+    const result = await notes.findOne(searchQueryObject);
+    return result || null;
 }
 
 // find all notes
 async function findNotes(searchQueryObject){
     const notes = getCollection();
-    return await notes.find(searchQueryObject);
+    return await notes.find(searchQueryObject).toArray();
+}
+
+async function findParentTypes(){
+    const notes = getCollection();
+    const res = await notes.findOne({ lookup: "parentLookUp" });
+    return res.parentTypes;
+}
+
+async function deleteNote(reqid, userId){
+    const notes = getCollection(); // get your collection
+
+    // Delete one document where both userId and _id match
+    const result = await notes.deleteOne({
+        _id: new ObjectId(reqid), 
+        userId: userId
+    });
+    if(!result){
+        throw new Error("unkown result unexpect null in model delete");
+    }
+
+    return result.deletedCount;
 }
 
 module.exports = {
     createNote,
     findNote,
-    findNotes
+    findNotes,
+    findParentTypes,
+    deleteNote
 }

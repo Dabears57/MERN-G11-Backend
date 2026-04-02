@@ -57,7 +57,7 @@ async function loginUser(email, password){
     }
 
     // build JWT login token
-    const jwt = jwtUtil.generateToken(email, user.firstName);
+    const jwt = jwtUtil.generateToken(user._id, email, user.firstName);
     return jwt;
 }
 

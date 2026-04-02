@@ -14,7 +14,7 @@ async function createSession(projectId){
         breaks: []
     };
 
-    return sessionModel.createSession(session);
+    return await sessionModel.createSession(session);
 }
 
 // STOP SESSION
@@ -23,18 +23,18 @@ async function stopSession(id){
         throw new Error("missing session id");
     }
 
-    return sessionModel.updateSession(id, {
+    return await sessionModel.updateSession(id, {
         endTime: new Date()
     });
 }
 
 // FIND
 async function findSession(query){
-    return sessionModel.findSession(query);
+    return await sessionModel.findSession(query);
 }
 
 async function findSessions(query){
-    return sessionModel.findSessions(query);
+    return await sessionModel.findSessions(query);
 }
 
 // UPDATE
@@ -43,7 +43,7 @@ async function updateSession(id, update){
         throw new Error("missing session id");
     }
 
-    return sessionModel.updateSession(id, update);
+    return await sessionModel.updateSession(id, update);
 }
 
 // DELETE
@@ -52,7 +52,7 @@ async function deleteSession(id){
         throw new Error("missing session id");
     }
 
-    return sessionModel.deleteSession(id);
+    return await sessionModel.deleteSession(id);
 }
 
 module.exports = {

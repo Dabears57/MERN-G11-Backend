@@ -1,7 +1,10 @@
 const express = require('express');
+const cookieParser = require("cookie-parser");
+
 
 // create API router
 const apiRouter = express.Router();
+apiRouter.use(cookieParser());
 
 // setup user router
 const userRouter = require('./user-router');

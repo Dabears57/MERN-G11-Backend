@@ -15,17 +15,17 @@ async function createProject(title, description, userId){
         userId
     };
 
-    return projectModel.createProject(project);
+    return await projectModel.createProject(project);
 }
 
 // FIND ONE
 async function findProject(searchQueryObject){
-    return projectModel.findProject(searchQueryObject);
+    return await projectModel.findProject(searchQueryObject);
 }
 
 // FIND MANY
 async function findProjects(searchQueryObject){
-    return projectModel.findProjects(searchQueryObject);
+    return await projectModel.findProjects(searchQueryObject);
 }
 
 // UPDATE
@@ -34,7 +34,7 @@ async function updateProject(id, updateObject){
         throw new Error("missing project id");
     }
 
-    return projectModel.updateProject(id, updateObject);
+    return await projectModel.updateProject(id, updateObject);
 }
 
 // DELETE
@@ -43,7 +43,7 @@ async function deleteProject(id){
         throw new Error("missing project id");
     }
 
-    return projectModel.deleteProject(id);
+    return await projectModel.deleteProject(id);
 }
 
 module.exports = {

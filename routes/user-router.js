@@ -33,8 +33,6 @@ async function createUser(req, res) {
         });
 
     } catch (err) {
-        console.log(err);
-
         if (err.message === "EMAIL_EXISTS") {
             return res.status(400).json({ 
                 success: false,
@@ -70,8 +68,6 @@ async function verifyAccount(req, res) {
         });
 
     } catch (err) {
-        console.log(err);
-
         if (err.message === "INVALID_OR_EXPIRED_TOKEN") {
             return res.status(400).json({
                 success: false,
@@ -98,7 +94,7 @@ async function loginUser(req, res) {
                 message: "Email and Password is required",
             });
         }
-    
+  
         const jwt = await userService.loginUser(email, password);
 
         return res.status(200).json({
@@ -110,9 +106,6 @@ async function loginUser(req, res) {
         });
 
     } catch (err) {
-        console.log("sending error")
-        console.log(err);
-
         return res.status(500).json({
             success: false,
             error: err.message,
