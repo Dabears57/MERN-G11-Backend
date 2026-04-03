@@ -11,8 +11,8 @@ async function createProject(title, description, userId){
         description,
         startDate: new Date(),
         endDate: null,
-        timeSpent: 0,
-        userId
+        totalTime: 0,
+        userId: userId
     };
 
     return await projectModel.createProject(project);

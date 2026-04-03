@@ -1,4 +1,7 @@
 const db = require("../utils/mongo-utils");
+const DATABASE_STR = "development";
+
+const { ObjectId } = require("mongodb");
 
 let _collection = null;
 
@@ -13,6 +16,14 @@ function getCollection() {
 
     _collection = dbInstance.collection("tasks");
     return _collection;
+}
+
+// update task time
+async function incrementTotalTime(taskId, timeInSeconds) {
+  return await getCollection().updateOne(
+    { _id: new ObjectId(taskId) },
+    { $inc: { totalTime: timeInSeconds } }
+  );
 }
 
 // CREATE
@@ -48,5 +59,6 @@ module.exports = {
     findTask,
     findTasks,
     updateTask,
-    deleteTask
+    deleteTask,
+   incrementTotalTime 
 };

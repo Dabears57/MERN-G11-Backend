@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const SECRET_KEY = process.env.JWT_SECRET || "supersecretkey";
 
 // token expiration (good default)
-const EXPIRES_IN = "1h";
+const EXPIRES_IN = "24h";
 
 /**
  * Generate a JWT containing the user's email

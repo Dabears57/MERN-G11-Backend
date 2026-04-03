@@ -1,4 +1,6 @@
 const db = require("../utils/mongo-utils");
+const DATABASE_STR = "development";
+
 
 let _collection = null;
 
@@ -13,6 +15,14 @@ function getCollection() {
 
     _collection = dbInstance.collection("projects");
     return _collection;
+}
+
+// increment total projet time
+async function incrementTotalTime(projectId, timeInSeconds) {
+  return await getCollection().updateOne(
+    { _id: new Object(projectId) },
+    { $inc: { totalTime: timeInSeconds } }
+  );
 }
 
 // CREATE
@@ -48,5 +58,6 @@ module.exports = {
     findProject,
     findProjects,
     updateProject,
-    deleteProject
+    deleteProject,
+    incrementTotalTime
 };

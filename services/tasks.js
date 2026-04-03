@@ -1,4 +1,5 @@
 const taskModel = require("../models/tasks");
+const { ObjectId } = require("mongodb");
 
 // CREATE
 async function createTask(projectId, name, description){
@@ -7,12 +8,12 @@ async function createTask(projectId, name, description){
     }
 
     const task = {
-        projectId,
+        projectId: new ObjectId(projectId),
         name,
         description: description || "",
         startDate: null,
         endDate: null,
-        timeSpent: 0,
+        totalTime: 0,
         todos: []
     };
 
