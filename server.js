@@ -18,6 +18,7 @@ app.use("/api", apiRouter);
 
 // models
 const userModel = require("./models/user");
+const sessionModel = require("./models/sessions");
 
 // start server wait for mongodb connection
 async function startup(){
@@ -28,7 +29,11 @@ async function startup(){
 
     console.log("initializing models...");
 
-    await userModel.init();
+    // init databases in parallel
+    await Promise.all([
+        userModel.init(),
+        sessionModel.init(),
+    ]);
 
     console.log("models are initialized.");
 

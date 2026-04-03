@@ -1,65 +1,89 @@
 const sessionModel = require("../models/sessions");
 
-// START SESSION
-async function createSession(projectId){
-    if(!projectId){
-        throw new Error("missing projectId");
+async function createSession(userId, projectId){
+    // ensure we don't have an active session
+    // this is not concurrency safe, but serves as an early check
+    const isSessionActive = await existsActiveSession(userId);
+    if(isSessionActive){
+        return false;
     }
 
-    const session = {
-        projectId,
-        startTime: new Date(),
+    // create session which will do the check for us (does not start it)
+    return await sessionModel.createSession(userId, {
+        projectId: projectId,
+        currentTime: new Date(),
         endTime: null,
-        tasksWorked: [],
-        breaks: []
-    };
-
-    return await sessionModel.createSession(session);
-}
-
-// STOP SESSION
-async function stopSession(id){
-    if(!id){
-        throw new Error("missing session id");
-    }
-
-    return await sessionModel.updateSession(id, {
-        endTime: new Date()
+        paused: true,
+        breaks: [],
+        totalTime: 0
     });
 }
 
-// FIND
-async function findSession(query){
-    return await sessionModel.findSession(query);
-}
+async function getStatus(userId){
+    const activeSession = await sessionModel.fetchAndUpdateActiveSession(userId);
 
-async function findSessions(query){
-    return await sessionModel.findSessions(query);
-}
-
-// UPDATE
-async function updateSession(id, update){
-    if(!id){
-        throw new Error("missing session id");
+    // no active session
+    if(!activeSession){
+        return {
+            "status": "no active session",
+            "currentTimeStamp": null,
+            "timeElapsedSecs": 0,
+        };
     }
 
-    return await sessionModel.updateSession(id, update);
-}
+    const isPaused = activeSession.paused;
+    const currTime = activeSession.currentTime;
+    const elapsedTime = activeSession.totalTime;
 
-// DELETE
-async function deleteSession(id){
-    if(!id){
-        throw new Error("missing session id");
+    console.log(activeSession);
+
+    if(isPaused){
+        return {
+            "status": "paused",
+            "currentTimeStamp": currTime,
+            "timeElapsedSecs": elapsedTime,
+        };
     }
 
-    return await sessionModel.deleteSession(id);
+    // session is active
+    return {
+        "status": "in-progress",
+        "currentTimeStamp": currTime,
+        "timeElapsedSecs": elapsedTime,
+    };
+}
+
+async function resumeSession(userId){
+    return await sessionModel.resumeSession(userId);
+}
+
+async function pauseSession(userId){
+    return await sessionModel.pauseSession(userId);
+}
+
+async function stopSession(userId){
+    return await sessionModel.stopSession(userId);
+}
+
+async function findActiveSession(userId){
+    return await sessionModel.findActiveSession(userId);
+}
+
+async function existsActiveSession(userId){
+    const result = await findActiveSession(userId);
+    if(!result){
+        return false;
+    }
+
+    return true;
 }
 
 module.exports = {
     createSession,
-    stopSession,
-    findSession,
-    findSessions,
-    updateSession,
-    deleteSession
+    findActiveSession,
+    existsActiveSession,
+    getStatus,
+    resumeSession,
+    pauseSession,
+    stopSession
 };
