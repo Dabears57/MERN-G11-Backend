@@ -146,8 +146,8 @@ async function generatePasswordResetToken(email){
         { _id: user._id },
         {
             $set: {
-                verificationTokenHash: hashedToken,
-                verificationTokenExpires: Date.now() + TOKEN_EXPIRE_TIME_MS,
+                passwordResetTokenHash: hashedToken,
+                passwordResetTokenExpires: Date.now() + TOKEN_PASSWORD_EXPIRE_TIME_MS,
             }
         }
     );
@@ -156,8 +156,31 @@ async function generatePasswordResetToken(email){
     return rawToken;
 }
 
-async function resetPassword(email, rawToken){
+async function resetPassword(email, hashedPassword, hashedToken){
+    const users = getCollection();
 
+    const user = await users.findOne({
+        email: email,
+        passwordResetTokenHash: hashedToken,
+        passwordResetTokenExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+        throw new Error("INVALID_OR_EXPIRED_TOKEN");
+    }
+
+    await users.updateOne(
+        { _id: user._id },
+        {
+            $set: { password:  hashedPassword},
+            $unset: {
+                passwordResetTokenHash: "",
+                passwordResetTokenExpires: ""
+            }
+        }
+    );
+
+    return user;
 }
 
 function assertVerified(user) {

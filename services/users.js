@@ -16,6 +16,10 @@ function generateVerificationLink(rawVerifyToken){
     return `${process.env.APP_URL}/verify?token=${rawVerifyToken}`;
 }
 
+function generatePasswordResetLink(rawPasswordToken){
+    return `${process.env.APP_URL}/password/reset?token=${rawPasswordToken}`
+}
+
 async function createUser(email, password, firstName){
     // hash password
     const hashedPassword = await hashPassword(password);
@@ -66,9 +70,23 @@ async function regenerateVerificationToken(email){
     return generateVerificationLink(rawToken);
 }
 
+async function generatePasswordResetToken(email){
+    const rawToken = await userModel.generatePasswordResetToken(email);
+    return generatePasswordResetLink(rawToken);
+}
+
+async function resetPassword(email, token, newPassword){
+    const tokenHash = encryptUtil.hashToken(token);
+    const hashedPassword = await hashPassword(newPassword);
+
+    await userModel.resetPassword(email, hashedPassword, tokenHash);
+}
+
 module.exports = {
     createUser,
     verifyUser,
     loginUser,
-    regenerateVerificationToken
+    regenerateVerificationToken,
+    generatePasswordResetToken,
+    resetPassword
 };
