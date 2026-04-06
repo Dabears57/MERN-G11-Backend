@@ -16,16 +16,24 @@ router.post("/create", authMiddleware, async (req,res)=>{
             });
         }
 
-        const task = await taskService.createTask(
+        // FIX: taskService.createTask returns the result of insertOne() which is
+        // { acknowledged, insertedId } — not the task document itself.
+        // Re-fetch the task using insertedId (already an ObjectId) so the client
+        // receives the full task shape with _id, name, description, etc.
+        const insertResult = await taskService.createTask(
             userId,
             projectId,
             name,
             description
         );
 
+        // Pass insertedId directly — it is already an ObjectId so findTask won't
+        // mangle it, and MongoDB will match the stored _id field correctly.
+        const createdTask = await taskService.findTask(userId, { _id: insertResult.insertedId });
+
         return res.status(200).json({
             success: true,
-            data: task,
+            data: createdTask ?? insertResult, // fall back to raw insertResult if fetch fails
             message: "task created successfully"
         });
 

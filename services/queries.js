@@ -1,6 +1,7 @@
 // services/queries.js
 
 const { getCollectionGeneral } = require("../utils/mongo-utils");
+const { ObjectId } = require("mongodb"); // needed for casting string IDs to ObjectId
 
 // TODO: update to ensure only users can fetch THEIR DATA
 
@@ -15,7 +16,17 @@ async function getFullProject(projectId) {
 
   const tasks = await tasksCol.find({ projectId }).toArray();
   const sessions = await sessionsCol.find({ projectId }).toArray();
-  const notes = await notesCol.find({ projectId }).toArray();
+
+  // FIX: notes are stored with parentType/parentId, not projectId.
+  // parentId is stored as a plain string (the client sends a string), so we
+  // must compare against string versions of the ObjectIds, not ObjectId objects.
+  const taskIdStrings = tasks.map(t => t._id.toString());
+  const notes = await notesCol.find({
+    $or: [
+      { parentType: "project", parentId: projectId.toString() },
+      { parentType: "task",    parentId: { $in: taskIdStrings } }
+    ]
+  }).toArray();
 
   return {
     project,
@@ -138,24 +149,26 @@ async function listSessionMetadata(userId) {
   const result = [];
 
   for (const projectId in projectSessionsMap) {
-    const project = await projectsCol.findOne({ _id: projectId });
+    // FIX: for...in yields string keys; cast back to ObjectId so findOne matches the _id field.
+    const project = await projectsCol.findOne({ _id: new ObjectId(projectId) });
     const projectSessions = projectSessionsMap[projectId];
 
-    // sort by startDate
-    projectSessions.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+    // FIX: sessions have no startDate field — they use createdAt (set at insert time).
+    projectSessions.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
     projectSessions.forEach((s, index) => {
       result.push({
         _id: s._id,
-        name: `${project?.name || "Unknown"}: Session #${index + 1}`,
-        startDate: s.startDate,
-        endDate: s.endDate,
-        projectName: project?.name || "Unknown"
+        name: `${project?.title || "Unknown"}: Session #${index + 1}`,
+        // FIX: sessions store createdAt (start) and endTime (stop), not startDate/endDate.
+        startDate: s.startDate || s.createdAt,
+        endDate:   s.endDate   || s.endTime,
+        projectName: project?.title || "Unknown"
       });
     });
   }
 
-  // global sort
+  // global sort by start time
   result.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
 
   return result;
