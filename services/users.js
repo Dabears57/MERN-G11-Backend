@@ -17,8 +17,8 @@ function generateVerificationLink(rawVerifyToken){
     return `${process.env.APP_URL}/verify?token=${rawVerifyToken}`;
 }
 
-function generatePasswordResetLink(rawPasswordToken){
-    return `${process.env.APP_URL}/reset-password?token=${rawPasswordToken}`
+function generatePasswordResetLink(email, rawPasswordToken){
+    return `${process.env.APP_URL}/reset-password?email=${email}&token=${rawPasswordToken}`
 }
 
 async function sendVerificationEmail(toEmail, verificationLink){
@@ -82,7 +82,7 @@ async function regenerateVerificationToken(email){
 
 async function generatePasswordResetToken(email){
     const rawToken = await userModel.generatePasswordResetToken(email);
-    return generatePasswordResetLink(rawToken);
+    return generatePasswordResetLink(email, rawToken);
 }
 
 async function resetPassword(email, token, newPassword){
