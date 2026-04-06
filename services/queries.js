@@ -53,11 +53,13 @@ async function getFullSession(sessionId) {
 
   const enrichedTasks = await Promise.all(
     tasks.map(async (t) => {
-      const task = await tasksCol.findOne({ _id: t.taskId });
+      // FIX: taskId is stored as a string (from req.body), but _id is ObjectId.
+      // Cast to ObjectId so findOne actually matches the task document.
+      const task = await tasksCol.findOne({ _id: new ObjectId(t.taskId) });
       return {
         _id: t.taskId,
         name: task?.name || "Unknown",
-        timeSpent: t.totalTime|| 0
+        timeSpent: t.totalTime || 0
       };
     })
   );
