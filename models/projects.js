@@ -41,16 +41,16 @@ async function findProjects(query){
 }
 
 // UPDATE
-async function updateProject(id, update){
+async function updateProject(userId, id, update){
     return await getCollection().updateOne(
-        { _id: id },
+        { _id: id, userId: userId },
         { $set: update }
     );
 }
 
 // DELETE
-async function deleteProject(id){
-    return await getCollection().deleteOne({ _id: id });
+async function deleteProject(userId, id){
+    return await getCollection().deleteOne({ _id: id, userId: userId });
 }
 
 module.exports = {

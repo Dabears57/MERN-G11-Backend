@@ -1,17 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const projectService = require("../services/projects");
+const authMiddleware = require("../middleware/authentication");
 
-// TODO ADD USER ID FOR ALL METHODS
-
-async function createProject(req, res){
+router.post("/create", authMiddleware, async (req, res)=>{
     try{
-        const { title, description, id } = req.body;
+        const userId = req.user.userId;
+        const { title, description} = req.body;
 
-        if(!title || !description || !id){
+        if(!title || !description){
             return res.status(400).json({
                 success: false,
-                error: "missing fields: title, description, or id",
+                error: "missing fields: title, description",
                 message: "missing required fields"
             });
         }
@@ -19,7 +19,7 @@ async function createProject(req, res){
         const project = await projectService.createProject(
             title,
             description,
-            id
+            userId
         );
 
         return res.status(200).json({
@@ -35,13 +35,14 @@ async function createProject(req, res){
             message: "unknown error"
         });
     }
-}
+});
 
-async function getProject(req, res){
+router.post("/fetch/one", authMiddleware, async (req,res)=>{
     try{
+        const userId = req.user.userId;
         const searchQuery = req.body;
 
-        const result = await projectService.findProject(searchQuery);
+        const result = await projectService.findProject(userId, searchQuery);
 
         return res.status(200).json({
             success: true,
@@ -56,13 +57,14 @@ async function getProject(req, res){
             message: "unknown error"
         });
     }
-}
+});
 
-async function getProjects(req, res){
+router.post("/fetch/many", authMiddleware, async (req, res)=>{
     try{
+        const userId = req.user.userId;
         const searchQuery = req.body;
 
-        const result = await projectService.findProjects(searchQuery);
+        const result = await projectService.findProjects(userId, searchQuery);
 
         return res.status(200).json({
             success: true,
@@ -77,10 +79,11 @@ async function getProjects(req, res){
             message: "unknown error"
         });
     }
-}
+});
 
-async function updateProject(req, res){
+router.put("/update", authMiddleware, async (req, res)=>{
     try{
+        const userId = req.user.userId;
         const { id, update } = req.body;
 
         if(!id || !update){
@@ -90,8 +93,15 @@ async function updateProject(req, res){
                 message: "missing required fields"
             });
         }
+        if(update.userId || update._id){
+            return res.status(400).json({
+                success: false,
+                error: "invalid update felid: userId, _id",
+                message: "invalid update felid: userId, _id"
+            });
+        }
 
-        const result = await projectService.updateProject(id, update);
+        const result = await projectService.updateProject(userId, id, update);
 
         return res.status(200).json({
             success: true,
@@ -106,10 +116,11 @@ async function updateProject(req, res){
             message: "unknown error"
         });
     }
-}
+});
 
-async function deleteProject(req, res){
+router.delete("/delete", authMiddleware, async (req, res)=>{
     try{
+        const userId = req.user.userId;
         const { id } = req.body;
 
         if(!id){
@@ -120,7 +131,7 @@ async function deleteProject(req, res){
             });
         }
 
-        const result = await projectService.deleteProject(id);
+        const result = await projectService.deleteProject(userId, id);
 
         return res.status(200).json({
             success: true,
@@ -135,13 +146,6 @@ async function deleteProject(req, res){
             message: "unknown error"
         });
     }
-}
-
-// ROUTES
-router.post("/create", createProject);
-router.get("/fetch/one", getProject);
-router.get("/fetch/many", getProjects);
-router.put("/update", updateProject);
-router.delete("/delete", deleteProject);
+});
 
 module.exports = router;
