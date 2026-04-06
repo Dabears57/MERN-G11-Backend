@@ -72,7 +72,7 @@ async function listProjectMetadata(userId) {
 
       return {
         _id: p._id,
-        name: p.name,
+        name: p.title,
         startDate: p.startDate,
         endDate: p.endDate,
         totalTime
