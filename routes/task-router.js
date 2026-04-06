@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const taskService = require("../services/tasks");
+const authMiddleware = require("../middleware/authentication");
 
-// TODO ADD USER ID FOR ALL METHODS
-
-async function createTask(req, res){
+router.post("/create", authMiddleware, async (req,res)=>{
     try{
+        const userId = req.user.userId;
         const { projectId, name, description } = req.body;
 
         if(!projectId || !name){
@@ -17,6 +17,7 @@ async function createTask(req, res){
         }
 
         const task = await taskService.createTask(
+            userId,
             projectId,
             name,
             description
@@ -35,13 +36,14 @@ async function createTask(req, res){
             message: "unknown error"
         });
     }
-}
+});
 
-async function getTask(req, res){
+router.post("/fetch/one", authMiddleware, async (req,res)=>{
     try{
+        const userId = req.user.userId;
         const searchQuery = req.body;
 
-        const result = await taskService.findTask(searchQuery);
+        const result = await taskService.findTask(userId, searchQuery);
 
         return res.status(200).json({
             success: true,
@@ -56,13 +58,14 @@ async function getTask(req, res){
             message: "unknown error"
         });
     }
-}
+});
 
-async function getTasks(req, res){
+router.post("/fetch/many", authMiddleware, async (req, res)=>{
     try{
+        const userId = req.user.userId;
         const searchQuery = req.body;
 
-        const result = await taskService.findTasks(searchQuery);
+        const result = await taskService.findTasks(userId, searchQuery);
 
         return res.status(200).json({
             success: true,
@@ -77,10 +80,11 @@ async function getTasks(req, res){
             message: "unknown error"
         });
     }
-}
+});
 
-async function updateTask(req, res){
+router.put("/update",authMiddleware,async (req,res)=>{
     try{
+        const userId = req.user.userId;
         const { id, update } = req.body;
 
         if(!id || !update){
@@ -91,7 +95,7 @@ async function updateTask(req, res){
             });
         }
 
-        const result = await taskService.updateTask(id, update);
+        const result = await taskService.updateTask(userId, id, update);
 
         return res.status(200).json({
             success: true,
@@ -106,10 +110,11 @@ async function updateTask(req, res){
             message: "unknown error"
         });
     }
-}
+});
 
-async function deleteTask(req, res){
+router.delete("/delete",authMiddleware, async (req,res)=>{
     try{
+        const userId = req.user.userId;
         const { id } = req.body;
 
         if(!id){
@@ -120,7 +125,7 @@ async function deleteTask(req, res){
             });
         }
 
-        const result = await taskService.deleteTask(id);
+        const result = await taskService.deleteTask(userId, id);
 
         return res.status(200).json({
             success: true,
@@ -135,12 +140,6 @@ async function deleteTask(req, res){
             message: "unknown error"
         });
     }
-}
-
-router.post("/create", createTask);
-router.get("/fetch/one", getTask);
-router.get("/fetch/many", getTasks);
-router.put("/update", updateTask);
-router.delete("/delete", deleteTask);
+});
 
 module.exports = router;

@@ -42,16 +42,22 @@ async function findTasks(query){
 }
 
 // UPDATE
-async function updateTask(id, update){
+async function updateTask(userId, id, update){
     return await getCollection().updateOne(
-        { _id: id },
+        { 
+            _id: id,
+            userId: userId
+        },
         { $set: update }
     );
 }
 
 // DELETE
-async function deleteTask(id){
-    return await getCollection().deleteOne({ _id: id });
+async function deleteTask(userId, id){
+    return await getCollection().deleteOne({ 
+        _id: id,
+        userId: userId
+    });
 }
 
 module.exports = {
