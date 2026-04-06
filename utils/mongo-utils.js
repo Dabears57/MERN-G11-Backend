@@ -24,7 +24,19 @@ function getDb(dbName) {
     return _client.db(dbName);
 }
 
+function getCollectionGeneral(collection){
+    const DATABASE_STR = "development";
+    const dbInstance = getDb(DATABASE_STR);
+
+    if (!dbInstance) {
+        throw new Error("DB not initialized");
+    }
+
+    return dbInstance.collection(collection);
+}
+
 module.exports = {
     connect,
     getDb,
+    getCollectionGeneral
 };

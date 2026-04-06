@@ -26,5 +26,8 @@ apiRouter.use("/tasks",tasksRouter);
 const sessionsRouter = require("./session-router");
 apiRouter.use("/sessions", sessionsRouter);
 
+const queriesRouter = require("./queries-router");
+apiRouter.use("/queries", queriesRouter);
+
 // tell express to now user the API router
 module.exports = apiRouter;
