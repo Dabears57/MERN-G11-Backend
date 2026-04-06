@@ -59,111 +59,6 @@ async function createSession(userId, sessionData) {
   }
 }
 
-// async function fetchAndUpdateActiveSession(userId) {
-//   const result = await getCollection().findOneAndUpdate(
-//     { userId, active: true }, // only require active
-//     [
-//       {
-//         $set: {
-//           totalTime: {
-//             $cond: [
-//               { $eq: ["$paused", false] }, // only update if NOT paused
-//               {
-//                 $add: [
-//                   { $ifNull: ["$totalTime", 0] },
-//                   { $trunc: { $divide: [{ $subtract: ["$$NOW", "$currentTime"] }, 1000] } } // ms → sec
-//                 ]
-//               },
-//               "$totalTime" // otherwise leave unchanged
-//             ]
-//           },
-//           currentTime: {
-//             $cond: [
-//               { $eq: ["$paused", false] },
-//               "$$NOW",
-//               "$currentTime"
-//             ]
-//           }
-//         }
-//       }
-//     ],
-//     { returnDocument: "after" }
-//   );
-
-//   return result.value;
-// }
-
-// async function pauseSession(userId) {
-//   const result = await getCollection().findOneAndUpdate(
-//     { userId, active: true, paused: false }, // only active & currently unpaused
-//     [
-//       {
-//         $set: {
-//           paused: true, // mark as paused
-//           totalTime: {
-//             $add: [
-//               { $ifNull: ["$totalTime", 0] },
-//               { $trunc: { $divide: [{ $subtract: ["$$NOW", "$currentTime"] }, 1000] } } // ms → sec
-//             ]
-//           },
-//           currentTime: "$$NOW" // reset to pause time
-//         }
-//       }
-//     ],
-//     { returnDocument: "after" }
-//   );
-
-//   return result.value;
-// }
-
-// async function resumeSession(userId) {
-//   const result = await getCollection().findOneAndUpdate(
-//     { userId, active: true }, // always fetch active session
-//     [
-//       {
-//         $set: {
-//           paused: false, // unpause
-//           currentTime: "$$NOW", // reset start point
-//           // leave totalTime unchanged
-//         }
-//       }
-//     ],
-//     { returnDocument: "after" }
-//   );
-
-//   return result.value;
-// }
-
-// async function stopSession(userId) {
-//   const result = await getCollection().findOneAndUpdate(
-//     { userId, active: true }, // only active sessions
-//     [
-//       {
-//         $set: {
-//           active: false, // mark as stopped
-//           paused: true,  // mark as paused
-//           totalTime: {
-//             $cond: [
-//               { $eq: ["$paused", false] }, // only update if not paused
-//               {
-//                 $add: [
-//                   { $ifNull: ["$totalTime", 0] },
-//                   { $trunc: { $divide: [{ $subtract: ["$$NOW", "$currentTime"] }, 1000] } } // ms → sec
-//                 ]
-//               },
-//               "$totalTime" // otherwise leave unchanged
-//             ]
-//           },
-//           currentTime: "$$NOW", // set to stop time
-//           endTime: "$$NOW"      // record when the session ended
-//         }
-//       }
-//     ],
-//     { returnDocument: "after" }
-//   );
-
-//   return result.value;
-// }
 async function markInactive(sessionId) {
   return await getCollection().updateOne(
     { _id: sessionId },
@@ -262,45 +157,6 @@ async function resumeSession(userId) {
 
   return result.value;
 }
-
-// Update session totalTime and session.tasks local times atomically
-// async function fetchAndUpdateActiveSession(userId) {
-//   return await getCollectionGeneral("sessions").findOneAndUpdate(
-//     { userId, active: true },
-//     [
-//       {
-//         $set: {
-//           totalTime: {
-//             $cond: [
-//               { $eq: ["$paused", false] },
-//               { $add: ["$totalTime", { $trunc: { $divide: [{ $subtract: ["$$NOW", "$currentTime"] }, 1000] } }] },
-//               "$totalTime"
-//             ]
-//           },
-//           currentTime: { $cond: [{ $eq: ["$paused", false] }, "$$NOW", "$currentTime"] },
-//           tasks: {
-//             $map: {
-//               input: "$tasks",
-//               as: "t",
-//               in: {
-//                 taskId: "$$t.taskId",
-//                 totalTime: {
-//                   $cond: [
-//                     { $eq: ["$paused", false] },
-//                     { $add: ["$$t.totalTime", { $trunc: { $divide: [{ $subtract: ["$$NOW", "$$t.currentTime"] }, 1000] } }] },
-//                     "$$t.totalTime"
-//                   ]
-//                 },
-//                 currentTime: { $cond: [{ $eq: ["$paused", false] }, "$$NOW", "$$t.currentTime"] }
-//               }
-//             }
-//           }
-//         }
-//       }
-//     ],
-//     { returnDocument: "after" }
-//   ).then(r => r.value);
-// }
 
 async function fetchAndUpdateActiveSession(userId) {
   return await getCollectionGeneral("sessions").findOneAndUpdate(
@@ -496,11 +352,6 @@ async function stopAndUpdate(userId) {
     { returnDocument: "after" }
   ).then(r => r.value);
 }
-
-// CREATE
-// async function createSession(session){
-//     return await getCollection().insertOne(session);
-// }
 
 // FIND ONE
 async function findSession(query){
