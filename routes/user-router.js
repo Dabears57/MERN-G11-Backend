@@ -22,16 +22,16 @@ async function createUser(req, res) {
             password, 
             firstName);
 
-        // TODO send verification link over email
+        await userService.sendVerificationEmail(email, verificationLink);
 
         return res.status(200).json({
             success: true,
-            data:{
-                verificationLink: verificationLink
+            data: {
+                warning: "THIS IS DEBUG AND SHOULD NOT BE RELEASED IN PRODUCTION",
+                link: verificationLink 
             },
-            message: "user created, please follow verification link"
+            message: "New token generated",
         });
-
     } catch (err) {
         if (err.message === "EMAIL_EXISTS") {
             return res.status(400).json({ 
@@ -127,10 +127,12 @@ async function regenerateVerificationToken(req, res) {
 
         const verificationLink = await userService.regenerateVerificationToken(email);
         
-        // TODO: Send this link via email to the user
+        await userService.sendVerificationEmail(email, verificationLink);
+
         return res.status(200).json({
             success: true,
             data: {
+                warning: "THIS IS DEBUG AND SHOULD NOT BE RELEASED IN PRODUCTION",
                 link: verificationLink 
             },
             message: "New token generated",
@@ -166,11 +168,12 @@ async function requestPasswordReset(req, res){
         }
 
         const verificationLink = await userService.generatePasswordResetToken(email);
+        await userService.sendPasswordResetEmail(email, verificationLink);
 
-        // TODO: Send this link via email to the user
         return res.status(200).json({ 
             success: true,
             data: {
+                warning: "THIS IS DEBUG CODE AND SHOULD NOT BE RELEASED TO PRODUCTION",
                 link: verificationLink
             },
             message: "New token generated", verificationLink });

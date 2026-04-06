@@ -1,6 +1,7 @@
 const userModel = require("../models/user");
 const jwtUtil = require("../utils/jwt-utils");
 const encryptUtil = require("../utils/encrypt-utils");
+const emailUtil = require("../utils/email-utils");
 
 // password helpers
 async function hashPassword(plainPassword){
@@ -17,8 +18,17 @@ function generateVerificationLink(rawVerifyToken){
 }
 
 function generatePasswordResetLink(rawPasswordToken){
-    return `${process.env.APP_URL}/password/reset?token=${rawPasswordToken}`
+    return `${process.env.APP_URL}/reset-password?token=${rawPasswordToken}`
 }
+
+async function sendVerificationEmail(toEmail, verificationLink){
+    await emailUtil.userSendAccountVerificationEmail(toEmail, verificationLink);
+}
+
+async function sendPasswordResetEmail(toEmail, verificationLink){
+    await emailUtil.userSendPasswordResetEmail(toEmail, verificationLink);
+}
+
 
 async function createUser(email, password, firstName){
     // hash password
@@ -88,5 +98,7 @@ module.exports = {
     loginUser,
     regenerateVerificationToken,
     generatePasswordResetToken,
-    resetPassword
+    resetPassword,
+    sendVerificationEmail,
+    sendPasswordResetEmail
 };

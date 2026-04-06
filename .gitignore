@@ -27,4 +27,5 @@ build
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
+*.sw?sendgrid.env
+sendgrid.env
