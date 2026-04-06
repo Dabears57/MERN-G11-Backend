@@ -3,11 +3,13 @@ const express = require("express");
 const router = express.Router();
 const queryService = require("../services/queries");
 const auth = require("../middleware/authentication");
+const { ObjectId } = require("mongodb");
 
 // Project full view
 router.get("/project/:id", auth, async (req, res) => {
   try{
-    const data = await queryService.getFullProject(req.params.id);
+    const projectId = new ObjectId(req.params.id);
+    const data = await queryService.getFullProject(projectId);
     if (!data) return res.status(404).json({ success: false });
 
     res.json({ success: true, data });
@@ -23,7 +25,8 @@ router.get("/project/:id", auth, async (req, res) => {
 // Session full view
 router.get("/session/:id", auth, async (req, res) => {
   try{
-    const data = await queryService.getFullSession(req.params.id);
+    const sessionId = new ObjectId(req.params.id);
+    const data = await queryService.getFullSession(sessionId);
     if (!data) return res.status(404).json({ success: false });
 
     res.json({ success: true, data });

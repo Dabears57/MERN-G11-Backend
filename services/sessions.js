@@ -136,6 +136,10 @@ async function findSession(userId, query){
     if(query._id){
         query._id = new ObjectId(query._id);
     }
+    if(query.projectId){
+        query.projectId = new ObjectId(query.projectId);
+    }
+
     const res = await sessionModel.findSession(query);
     return res;
 
@@ -150,6 +154,9 @@ async function findSessions(userId, query){
     // move it to a mongodb objectId
     if(query._id){
         query._id = new ObjectId(query._id);
+    }
+    if(query.projectId){
+        query.projectId = new ObjectId(query.projectId);
     }
 
     return await sessionModel.findSessions(query);
