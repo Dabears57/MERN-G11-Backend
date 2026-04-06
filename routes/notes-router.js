@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const noteService = require("../services/notes");
+const authMiddleware = require("../middleware/authentication");
 
 // TODO ADD USER ID FOR ALL METHODS
 
-async function createNote(req, res){
+router.post("/create", authMiddleware, async (req, res)=>{
     try{
         const { content, parentType, parentId } = req.body;
 
@@ -37,9 +38,9 @@ async function createNote(req, res){
             message: "unknown error"
         });
     }
-}
+});
 
-async function getNote(req, res){
+router.post("/fetch/one", authMiddleware, async (req, res)=>{
     try{
         const searchQuery = req.body;
 
@@ -60,9 +61,9 @@ async function getNote(req, res){
             message: "unknown error"
         });
     }
-}
+});
 
-async function getNotes(req, res){
+router.post("/fetch/many", authMiddleware, async (req, res)=>{
     try{
         const searchQuery = req.body;
 
@@ -83,10 +84,10 @@ async function getNotes(req, res){
             message: "unknown error"
         });
     }
-}
+});
 
 // THE SERVICE IS NOT IMPLEMENTED YET THIS IS JUST AN OUTLINE
-async function deleteNote(req, res){
+router.delete("/delete", authMiddleware, async (req, res)=>{
     try{
         const { id } = req.body;
 
@@ -127,11 +128,11 @@ async function deleteNote(req, res){
             message: "unknown error"
         });
     }
-}
+});
 
 // helper function which allows the database 
 // to control what is and isn't a valid parent type
-async function getParentTypes(req, res){
+router.get("/fetch/types", authMiddleware, async (req, res)=>{
     try{
         const result = await noteService.findParentTypes();
         console.log(result);
@@ -149,16 +150,6 @@ async function getParentTypes(req, res){
             message: "unknown error"
         });
     }
-}
-
-const authMiddleware = require("../middleware/authentication");
-
-router.post("/create", authMiddleware, createNote);
-router.post("/fetch/one", authMiddleware, getNote);
-router.post("/fetch/many", authMiddleware, getNotes);
-
-router.get("/fetch/types", getParentTypes);
-
-router.delete("/delete", authMiddleware, deleteNote);
+});
 
 module.exports = router;
