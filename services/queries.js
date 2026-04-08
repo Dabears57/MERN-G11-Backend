@@ -105,23 +105,27 @@ async function listTaskMetadata(userId) {
 
   const result = await Promise.all(
     tasks.map(async (t) => {
-      const project = await projectsCol.findOne({ _id: t.projectId });
+      // FIX: projectId is stored as a string on tasks (client-sent), so cast to
+      // ObjectId before querying — otherwise findOne never matches.
+      const project = await projectsCol.findOne({ _id: new ObjectId(t.projectId) });
 
+      // FIX: session.tasks[].taskId is stored as a string (client-sent), so
+      // compare against t._id.toString() in both the DB query and the in-memory find.
       const sessions = await sessionsCol.find({
-        "tasks.taskId": t._id
+        "tasks.taskId": t._id.toString()
       }).toArray();
 
       let totalTime = 0;
 
       for (const s of sessions) {
-        const taskEntry = s.tasks.find(x => x.taskId === t._id);
+        const taskEntry = s.tasks.find(x => x.taskId === t._id.toString());
         if (taskEntry) totalTime += taskEntry.totalTime || 0;
       }
 
       return {
         _id: t._id,
         name: t.name,
-        projectName: project?.name || "Unknown",
+        projectName: project?.title || "Unknown",
         totalTime,
         startDate: t.startDate,
         endDate: t.endDate
