@@ -152,4 +152,42 @@ router.get("/fetch/types", authMiddleware, async (req, res)=>{
     }
 });
 
+router.put("/edit", authMiddleware, async (req, res)=>{
+    try{
+        const userId = req.user.userId;
+        const { noteId, content } = req.body;
+
+        if(!noteId || !content){
+            return res.status(400).json({
+                success: false,
+                error: "need noteId and content inside body",
+                message: "need noteId and content inside body"
+            });
+        }
+
+        // check note service
+        const result = await noteService.updateNote(userId, noteId, content);
+        if(!result){
+            return res.status(404).json({
+                success: false,
+                error: "could note find note",
+                message: "could note find note"
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: result,
+            message: "note was successfully edited"
+        });
+
+    }catch(err){
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+            message: "unknown error"
+        });
+    }
+})
+
 module.exports = router;

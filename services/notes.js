@@ -1,4 +1,5 @@
 const noteModel = require("../models/notes");
+const { ObjectId } = require("mongodb");
 
 async function createNote(userId, content, parentType, parentId, createdAt){
     // validate parentType
@@ -33,10 +34,17 @@ async function findParentTypes(){
     return await noteModel.findParentTypes();
 }
 
+async function updateNote(userId, noteId, content){
+    return await noteModel.updateNote(userId, new ObjectId(noteId), {
+        content: content
+    });
+}
+
 module.exports = {
     createNote,
     findNote,
     findNotes,
     findParentTypes,
-    deleteNote
+    deleteNote,
+    updateNote
 }

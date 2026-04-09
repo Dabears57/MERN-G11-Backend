@@ -66,10 +66,18 @@ async function deleteNote(reqid, userId){
     return result.deletedCount;
 }
 
+async function updateNote(userId, id, update){
+    return await getCollection().updateOne(
+        { _id: id, userId: userId },
+        { $set: update }
+    );
+}
+
 module.exports = {
     createNote,
     findNote,
     findNotes,
     findParentTypes,
-    deleteNote
+    deleteNote,
+    updateNote
 }
