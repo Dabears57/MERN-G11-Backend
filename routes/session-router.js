@@ -246,33 +246,34 @@ router.get("/status", authMiddleware, async (req, res) => {
   }
 });
 
-// router.delete("/delete", authMiddleware, async (req, res) => {
-//   try {
-//     const { id } = req.body;
+router.delete("/delete", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { id } = req.body;
 
-//     if (!id) {
-//       return res.status(400).json({
-//         success: false,
-//         error: "missing session id",
-//         message: "missing session id"
-//       });
-//     }
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: "missing session id",
+        message: "missing session id"
+      });
+    }
 
-//     const result = await sessionService.deleteSession(id);
+    const result = await sessionService.deleteSession(userId, id);
 
-//     res.status(200).json({
-//       success: true,
-//       data: result,
-//       message: "session deleted successfully"
-//     });
+    res.status(200).json({
+      success: true,
+      data: result,
+      message: "session deleted successfully"
+    });
 
-//   } catch (err) {
-//     res.status(500).json({
-//       success: false,
-//       error: err.message,
-//       message: "unknown error"
-//     });
-//   }
-// });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: err.message,
+      message: "unknown error"
+    });
+  }
+});
 
 module.exports = router;

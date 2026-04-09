@@ -162,6 +162,10 @@ async function findSessions(userId, query){
     return await sessionModel.findSessions(query);
 }
 
+async function deleteSession(userId, sessionId){
+    return await sessionModel.deleteSession(userId, sessionId);
+}
+
 module.exports = {
     createSession,
     findActiveSession,
@@ -173,5 +177,6 @@ module.exports = {
     addTask,
     removeTask,
     findSession,
-    findSessions
+    findSessions,
+    deleteSession
 };

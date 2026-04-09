@@ -365,15 +365,82 @@ async function findSessions(query){
 
 // UPDATE
 async function updateSession(id, update){
-    return await getCollection().updateOne(
-        { _id: id },
-        { $set: update }
-    );
+  return await getCollection().updateOne(
+    { _id: id },
+    { $set: update }
+  );
 }
 
 // DELETE
-async function deleteSession(id){
-    return await getCollection().deleteOne({ _id: id });
+async function deleteSession(userId, sessionId) {
+  const sessionsCol = getCollection();
+  const projectsCol = getCollectionGeneral("projects");
+  const tasksCol = getCollectionGeneral("tasks");
+
+  const client = sessionsCol.client; // assumes shared client
+  const session = client.startSession();
+
+  try {
+    await session.withTransaction(async () => {
+      // 1. Fetch session
+      const sessDoc = await sessionsCol.findOne(
+        { 
+            _id: new ObjectId(sessionId),
+            userId: userId
+        },
+        { session }
+      );
+
+      if (!sessDoc) {
+        throw new Error("Session not found");
+      }
+
+      const sessionTotal = sessDoc.totalTime || 0;
+
+      // 2. Update project
+      if (sessDoc.projectId) {
+        await projectsCol.updateOne(
+          { 
+              _id: new ObjectId(sessDoc.projectId),
+              userId: userId
+          },
+          { 
+              $inc: { totalTime: -sessionTotal } 
+          },
+          { session }
+        );
+      }
+
+      // 3. Update tasks
+      if (sessDoc.tasks && sessDoc.tasks.length > 0) {
+        for (const t of sessDoc.tasks) {
+          const taskTime = t.totalTime || 0;
+
+          await tasksCol.updateOne(
+              { 
+                  _id: new ObjectId(t.taskId),
+                  userId: userId
+              },
+              { 
+                  $inc: { totalTime: -taskTime } 
+              },
+              { session }
+          );
+        }
+      }
+
+      // 4. Delete session
+      await sessionsCol.deleteOne(
+        { 
+            _id: new ObjectId(sessionId),
+            userId: userId
+        },
+        { session }
+      );
+    });
+  } finally {
+      await session.endSession();
+  }
 }
 
 async function findActiveSession(userId){
