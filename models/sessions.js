@@ -213,55 +213,6 @@ async function fetchAndUpdateActiveSession(userId) {
   ).then(r => r.value);
 }
 
-async function stopAndUpdate(userId) {
-  console.log("attempting update...");
-  return await getCollectionGeneral("sessions").findOneAndUpdate(
-    { userId, active: true },
-    [
-      {
-        $set: {
-          paused: true,
-          endTime: "$$NOW",
-          totalTime: {
-            $cond: [
-              { $eq: ["$paused", false] },
-              { $add: [
-                  { $ifNull: ["$totalTime", 0] },
-                  { $trunc: { $divide: [{ $subtract: ["$$NOW", "$currentTime"] }, 1000] } }
-                ]
-              },
-              "$totalTime"
-            ]
-          },
-          currentTime: { $cond: [{ $eq: ["$paused", false] }, "$$NOW", "$currentTime"] },
-          tasks: {
-            $map: {
-              input: "$tasks",
-              as: "t",
-              in: {
-                taskId: "$$t.taskId",
-                totalTime: {
-                  $cond: [
-                    { $eq: ["$paused", false] },
-                    { $add: [
-                        { $ifNull: ["$$t.totalTime", 0] },
-                        { $trunc: { $divide: [{ $subtract: ["$$NOW", "$$t.currentTime"] }, 1000] } }
-                      ]
-                    },
-                    "$$t.totalTime"
-                  ]
-                },
-                currentTime: { $cond: [{ $eq: ["$paused", false] }, "$$NOW", "$$t.currentTime"] }
-              }
-            }
-          }
-        }
-      }
-    ],
-    { returnDocument: "after" }
-  ).then(r => r.value);
-}
-
 async function modifySessionTask(sessionId, taskId, action) {
   const session = await getCollectionGeneral("sessions").findOne({ _id: sessionId });
   if (!session) return null;
